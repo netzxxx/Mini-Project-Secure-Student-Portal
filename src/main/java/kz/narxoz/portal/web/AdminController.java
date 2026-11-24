@@ -9,6 +9,7 @@ import kz.narxoz.portal.service.AuditService;
 import kz.narxoz.portal.service.CurrentUserService;
 import kz.narxoz.portal.web.dto.Requests;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -22,11 +23,13 @@ import java.util.List;
 
 /**
  * Admin-only functions.
- * VULNERABLE (Test 2): nothing on the server checks the ADMIN role here.
- * The frontend only hides the Admin tab - hidden buttons are not security.
+ * FIX (Test 2): the ADMIN role is checked on the server twice - in the security
+ * filter chain (/api/admin/**) and here with @PreAuthorize (defense in depth),
+ * so the check stays even if someone changes the URL rules later.
  */
 @RestController
 @RequestMapping("/api/admin")
+@PreAuthorize("hasRole('ADMIN')")
 public class AdminController {
 
     private final UserRepository users;

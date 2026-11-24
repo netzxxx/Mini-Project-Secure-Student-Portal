@@ -6,6 +6,7 @@ import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpMethod;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -26,7 +27,14 @@ import java.nio.charset.StandardCharsets;
 import static org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher;
 
 @Configuration
+@EnableMethodSecurity // FIX (Test 2): enables @PreAuthorize as a second layer on controllers
 public class SecurityConfig {
+
+    private final AuditingAccessDeniedHandler accessDeniedHandler;
+
+    public SecurityConfig(AuditingAccessDeniedHandler accessDeniedHandler) {
+        this.accessDeniedHandler = accessDeniedHandler;
+    }
 
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -45,12 +53,15 @@ public class SecurityConfig {
                                 antMatcher(HttpMethod.GET, "/api/info")).permitAll()
                         // VULNERABLE (Test 6): database console is reachable without login.
                         .requestMatchers(PathRequest.toH2Console()).permitAll()
-                        // VULNERABLE (Test 2): every logged-in user may call every API,
-                        // including /api/admin/**. The only "protection" is that the
-                        // frontend hides the Admin tab for non-admins.
+                        // FIX (Test 2): role checks on the SERVER, not only hidden buttons in the UI.
+                        .requestMatchers(antMatcher("/api/admin/**")).hasRole("ADMIN")
+                        .requestMatchers(antMatcher("/api/teacher/**")).hasAnyRole("TEACHER", "ADMIN")
+                        // deny by default: everything else needs a valid token
                         .anyRequest().authenticated())
                 .oauth2ResourceServer(oauth -> oauth.jwt(jwt ->
-                        jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())));
+                        jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())))
+                // log every 403 to the audit log so attacks are visible to the admin
+                .exceptionHandling(e -> e.accessDeniedHandler(accessDeniedHandler));
         return http.build();
     }
 
