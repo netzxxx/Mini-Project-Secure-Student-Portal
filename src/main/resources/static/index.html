@@ -4,19 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Sign in · Secure Student Portal</title>
-    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%232b4cde'/%3E%3Crect x='11' y='6' width='10' height='3' rx='1.5' fill='%23fff'/%3E%3Crect x='8' y='15' width='16' height='11' rx='3' fill='%23fff'/%3E%3C/svg%3E">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%231440d8'/%3E%3Crect x='11' y='6' width='10' height='3' rx='1.5' fill='%23fff'/%3E%3Crect x='8' y='15' width='16' height='11' rx='3' fill='%23fff'/%3E%3C/svg%3E">
     <link rel="stylesheet" href="/css/style.css">
     <script src="/js/theme.js"></script>
 </head>
 <body class="login-page">
 <aside class="login-hero">
+    <div id="login-seal" class="login-seal"></div>
     <p class="wordmark">Secure Student Portal</p>
     <div class="hero-body">
-        <h1>One pass.<br>Only your doors.</h1>
-        <p class="hero-lead">Students see their own grades, teachers see their own courses, and the server checks every request.</p>
+        <h1>Every account has its own seal.</h1>
+        <p>Type a username to see yours engraved.</p>
     </div>
-    <div class="lanyard"><section id="pass" class="pass role-none" aria-label="Campus pass preview" aria-live="polite"></section></div>
-    <p class="hero-note">Narxoz University, Mobile and Web Application Security</p>
+    <p id="login-mrz" class="mrz" aria-hidden="true"></p>
 </aside>
 
 <main class="login-main">
@@ -45,12 +45,12 @@
             <h3>Demo accounts</h3>
             <p class="muted">Made-up data, local use only. Click one to fill in the form.</p>
             <div class="chips">
-                <button type="button" class="chip role-student" data-user="student_a" data-pass="Student#2026" data-name="Aliya Student" data-role="STUDENT">student_a</button>
-                <button type="button" class="chip role-student" data-user="student_b" data-pass="Student#2026" data-name="Bolat Student" data-role="STUDENT">student_b</button>
-                <button type="button" class="chip role-student" data-user="student_c" data-pass="Student#2026" data-name="Dana Student" data-role="STUDENT">student_c</button>
-                <button type="button" class="chip role-teacher" data-user="teacher_timur" data-pass="Teacher#2026" data-name="Timur Teacher" data-role="TEACHER">teacher_timur</button>
-                <button type="button" class="chip role-teacher" data-user="teacher_saule" data-pass="Teacher#2026" data-name="Saule Teacher" data-role="TEACHER">teacher_saule</button>
-                <button type="button" class="chip role-admin" data-user="admin" data-pass="Admin#2026" data-name="Portal Admin" data-role="ADMIN">admin</button>
+                <button type="button" class="chip" data-user="student_a" data-pass="Student#2026">student_a</button>
+                <button type="button" class="chip" data-user="student_b" data-pass="Student#2026">student_b</button>
+                <button type="button" class="chip" data-user="student_c" data-pass="Student#2026">student_c</button>
+                <button type="button" class="chip" data-user="teacher_timur" data-pass="Teacher#2026">teacher_timur</button>
+                <button type="button" class="chip" data-user="teacher_saule" data-pass="Teacher#2026">teacher_saule</button>
+                <button type="button" class="chip" data-user="admin" data-pass="Admin#2026">admin</button>
             </div>
         </section>
     </div>

@@ -8,16 +8,29 @@
     let lockTimer = null;
 
     Api.showBuild($('build-badge'));
-    Pass.render($('pass'), {});
+
+    // The seal and the line under it are drawn from the typed username.
+    function engrave() {
+        const name = user.value.trim().toLowerCase();
+        $('login-seal').replaceChildren(Pass.seal(name));
+        $('login-mrz').replaceChildren(
+            el('span', {}, Pass.mrz(['PORTAL', name || 'username'])),
+            el('span', {}, Pass.mrz(['NARXOZ', 'ACCESS CHECKED BY SERVER'])));
+    }
+
+    let engraveTimer = null;
+    engrave();
+    user.addEventListener('input', () => {
+        clearTimeout(engraveTimer);
+        engraveTimer = setTimeout(engrave, 250);
+    });
 
     document.querySelectorAll('.chip').forEach((chip) => {
         chip.addEventListener('click', () => {
             user.value = chip.dataset.user;
             pass.value = chip.dataset.pass;
             document.querySelectorAll('.chip').forEach((c) => c.setAttribute('aria-pressed', String(c === chip)));
-            Pass.render($('pass'), {
-                name: chip.dataset.name, role: chip.dataset.role, meta: chip.dataset.user,
-            });
+            engrave();
         });
     });
 

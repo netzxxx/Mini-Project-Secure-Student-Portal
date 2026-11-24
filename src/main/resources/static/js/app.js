@@ -39,6 +39,8 @@
             else t.removeAttribute('aria-current');
         });
         document.querySelectorAll('.panel').forEach((p) => p.classList.toggle('hidden', p.id !== 'tab-' + name));
+        // working screens get the full height
+        $('pass').classList.toggle('hidden', ['admin', 'access', 'about'].includes(name));
         loaders[name]().catch(handleError);
     }
 
@@ -68,8 +70,10 @@
         Pass.render($('pass'), {
             name: me.fullName,
             role: me.role,
-            meta: [me.username, me.groupName, 'ID ' + me.id].filter(Boolean).join(' · '),
-            footer: el('p', { class: 'pass-session' }, 'Session ends in ', sessionLeft),
+            username: me.username,
+            group: me.groupName,
+            id: me.id,
+            footer: sessionLeft,
         });
     }
 
@@ -107,14 +111,12 @@
             $('grades-body').replaceChildren(el('p', { class: 'muted' }, 'No grades yet. They appear here once a teacher saves them.'));
             return;
         }
-        $('grades-body').replaceChildren(...grades.map((g) => el('article', { class: 'card course' },
-            el('header', { class: 'course-head' },
-                el('div', {}, el('p', { class: 'code' }, g.courseCode), el('h2', {}, g.courseTitle),
-                    el('p', { class: 'muted' }, g.teacherName)),
-                el('p', { class: 'mark ' + (g.total < 50 ? 'bad' : '') }, g.letter, el('small', {}, g.total + ' / 100'))),
-            bar('Midterm', g.midterm),
-            bar('Final', g.finalExam),
-            g.teacherComment ? el('p', { class: 'comment' }, g.teacherComment) : null)));
+        $('grades-body').replaceChildren(...grades.map((g) => el('article', { class: 'course' },
+            el('div', {}, el('p', { class: 'code' }, g.courseCode), el('h2', {}, g.courseTitle),
+                el('p', { class: 'muted' }, g.teacherName),
+                g.teacherComment ? el('p', { class: 'comment' }, g.teacherComment) : null),
+            el('div', { class: 'course-bars' }, bar('Midterm', g.midterm), bar('Final', g.finalExam)),
+            el('p', { class: 'stamp round' + (g.total < 50 ? ' bad' : '') }, g.letter, el('small', {}, g.total + ' / 100')))));
 
         const avg = Math.round(grades.reduce((s, g) => s + g.total, 0) / grades.length);
         const best = grades.reduce((a, b) => (b.total > a.total ? b : a));
@@ -270,11 +272,14 @@
     function renderChecks(rows) {
         $('checks-body').replaceChildren(...rows.map((c) => {
             const ok = c.status === c.expected;
+            const words = { 200: 'Admitted', 403: 'Refused' };
             const answer = c.status === null ? el('span', { class: 'muted' }, 'Not sent')
-                : el('span', { class: 'outcome ' + (ok ? 'success' : 'denied') },
-                    c.status + (ok ? ' as expected' : ' unexpected'));
+                : el('span', { class: 'stamp wide' + (c.status === 403 ? ' bad' : '') },
+                    el('span', {}, c.status), el('span', {}, words[c.status] || 'Error'));
+            const verdict = c.status === null ? '' : (ok ? 'As expected' : 'Not as expected');
             return el('tr', {}, el('td', { class: 'mono' }, 'GET ' + c.path), el('td', {}, c.what),
-                el('td', {}, c.allowed ? '200 allow' : '403 refuse'), el('td', {}, answer));
+                el('td', {}, c.expected), el('td', {}, answer),
+                el('td', { class: ok ? 'muted' : 'outcome denied' }, verdict));
         }));
     }
 
@@ -333,8 +338,6 @@
     Api.showBuild($('build-badge'));
     Api.get('/api/me').then((user) => {
         me = user;
-        // Accent colour follows the role, so it is obvious whose session is on screen.
-        document.body.classList.add('role-' + me.role.toLowerCase());
         renderPass();
         startSessionClock();
         setupTabs();
