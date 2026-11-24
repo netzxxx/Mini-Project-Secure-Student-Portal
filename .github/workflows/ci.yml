@@ -42,13 +42,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: aquasecurity/trivy-action@0.28.0
-        with:
-          scan-type: fs
-          scanners: vuln,secret,misconfig
-          severity: HIGH,CRITICAL
-          format: table
-          exit-code: "0"   # report only
+      - name: Trivy filesystem scan (official Docker image)
+        run: >
+          docker run --rm -v "$PWD:/src" aquasec/trivy:latest fs
+          --scanners vuln,secret,misconfig --severity HIGH,CRITICAL --exit-code 0 /src
 
   dast:
     name: DAST - OWASP ZAP baseline
