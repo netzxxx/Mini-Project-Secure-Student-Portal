@@ -6,6 +6,7 @@ import kz.narxoz.portal.domain.User;
 import kz.narxoz.portal.repo.UserRepository;
 import kz.narxoz.portal.service.AuditService;
 import kz.narxoz.portal.service.CurrentUserService;
+import kz.narxoz.portal.web.dto.UserDtos;
 import org.springframework.http.MediaType;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -33,20 +34,20 @@ public class ProfileController {
     }
 
     @GetMapping("/api/me")
-    public User me() {
-        // VULNERABLE (Test 3): returns the entity, so passwordHash and IIN reach the browser.
-        return current.get();
+    public UserDtos.Profile me() {
+        // FIX (Test 3): DTO instead of the entity.
+        return UserDtos.Profile.from(current.get());
     }
 
     @PatchMapping(value = "/api/me", consumes = MediaType.APPLICATION_JSON_VALUE)
     @Transactional
-    public User updateMe(@RequestBody String body, HttpServletRequest http) throws IOException {
+    public UserDtos.Profile updateMe(@RequestBody String body, HttpServletRequest http) throws IOException {
         User me = current.get();
         // VULNERABLE (Test 4): mass assignment. Every JSON field is copied onto the entity,
         // so a student can send {"role":"ADMIN"} and promote themselves.
         objectMapper.readerForUpdating(me).readValue(body);
         User saved = users.save(me);
         audit.log(saved.getUsername(), "PROFILE_UPDATE", "SUCCESS", http);
-        return saved;
+        return UserDtos.Profile.from(saved);
     }
 }

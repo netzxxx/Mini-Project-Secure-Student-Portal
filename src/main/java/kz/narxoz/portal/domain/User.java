@@ -1,5 +1,6 @@
 package kz.narxoz.portal.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -23,6 +24,9 @@ public class User {
     @Column(nullable = false, unique = true)
     private String username;
 
+    // FIX (Test 3): defense in depth - even if an entity is serialized by mistake,
+    // these two fields never go to JSON.
+    @JsonIgnore
     @Column(nullable = false)
     private String passwordHash;
 
@@ -31,6 +35,7 @@ public class User {
     private String phone;
 
     /** Fake national ID number - "sensitive-looking" demo field. */
+    @JsonIgnore
     private String iin;
 
     private String groupName;

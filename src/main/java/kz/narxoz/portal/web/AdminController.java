@@ -8,6 +8,7 @@ import kz.narxoz.portal.repo.UserRepository;
 import kz.narxoz.portal.service.AuditService;
 import kz.narxoz.portal.service.CurrentUserService;
 import kz.narxoz.portal.web.dto.Requests;
+import kz.narxoz.portal.web.dto.UserDtos;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
@@ -43,19 +44,19 @@ public class AdminController {
     }
 
     @GetMapping("/users")
-    public List<User> allUsers() {
-        return users.findAll();
+    public List<UserDtos.Profile> allUsers() {
+        return users.findAll().stream().map(UserDtos.Profile::from).toList();
     }
 
     @PutMapping("/users/{id}/role")
     @Transactional
-    public User changeRole(@PathVariable Long id, @Valid @RequestBody Requests.RoleChange req,
+    public UserDtos.Profile changeRole(@PathVariable Long id, @Valid @RequestBody Requests.RoleChange req,
                            HttpServletRequest http) {
         User target = users.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
         target.setRole(req.role());
         audit.log(current.get().getUsername(), "CHANGE_ROLE " + target.getUsername() + " -> " + req.role(),
                 "SUCCESS", http);
-        return users.save(target);
+        return UserDtos.Profile.from(users.save(target));
     }
 
     @GetMapping("/audit")

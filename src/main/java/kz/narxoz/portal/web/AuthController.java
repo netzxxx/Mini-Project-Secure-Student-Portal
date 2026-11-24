@@ -7,6 +7,7 @@ import kz.narxoz.portal.repo.UserRepository;
 import kz.narxoz.portal.service.AuditService;
 import kz.narxoz.portal.service.TokenService;
 import kz.narxoz.portal.web.dto.Requests;
+import kz.narxoz.portal.web.dto.UserDtos;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -44,7 +45,7 @@ public class AuthController {
         }
         User user = found.get();
         audit.log(user.getUsername(), "LOGIN", "SUCCESS", http);
-        // VULNERABLE (Test 3): the whole User entity is returned, including passwordHash and IIN.
-        return ResponseEntity.ok(Map.of("token", tokens.issue(user), "user", user));
+        // FIX (Test 3): only a profile DTO is returned (no passwordHash, no IIN).
+        return ResponseEntity.ok(Map.of("token", tokens.issue(user), "user", UserDtos.Profile.from(user)));
     }
 }

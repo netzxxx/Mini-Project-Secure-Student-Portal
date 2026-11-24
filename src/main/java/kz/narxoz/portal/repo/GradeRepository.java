@@ -9,4 +9,6 @@ public interface GradeRepository extends JpaRepository<Grade, Long> {
     List<Grade> findByStudentId(Long studentId);
 
     List<Grade> findByCourseId(Long courseId);
+
+    boolean existsByStudentIdAndCourseTeacherId(Long studentId, Long teacherId);
 }
