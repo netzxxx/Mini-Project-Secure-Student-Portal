@@ -2,7 +2,6 @@ package kz.narxoz.portal.config;
 
 import com.nimbusds.jose.jwk.source.ImmutableSecret;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpMethod;
 import org.springframework.context.annotation.Configuration;
@@ -19,6 +18,8 @@ import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter;
+import org.springframework.security.web.header.writers.StaticHeadersWriter;
 
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
@@ -42,17 +43,23 @@ public class SecurityConfig {
                 // Stateless JWT API: no cookies, so CSRF protection is not needed.
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                // VULNERABLE (Test 6): all security response headers are switched off
-                // (also needed so the H2 console can be shown in a frame).
-                .headers(headers -> headers.disable())
+                // FIX (Test 6): security headers on every response. Spring adds
+                // X-Content-Type-Options: nosniff and Cache-Control by default; we add the rest.
+                .headers(headers -> headers
+                        .contentSecurityPolicy(csp -> csp.policyDirectives(
+                                "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; "
+                                        + "object-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'"))
+                        .frameOptions(frame -> frame.deny())
+                        .referrerPolicy(ref -> ref.policy(ReferrerPolicyHeaderWriter.ReferrerPolicy.NO_REFERRER))
+                        .addHeaderWriter(new StaticHeadersWriter("Permissions-Policy",
+                                "camera=(), microphone=(), geolocation=()")))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(antMatcher("/"), antMatcher("/index.html"), antMatcher("/app.html"),
                                 antMatcher("/favicon.ico"), antMatcher("/css/**"), antMatcher("/js/**"),
                                 antMatcher("/error")).permitAll()
                         .requestMatchers(antMatcher(HttpMethod.POST, "/api/auth/login"),
                                 antMatcher(HttpMethod.GET, "/api/info")).permitAll()
-                        // VULNERABLE (Test 6): database console is reachable without login.
-                        .requestMatchers(PathRequest.toH2Console()).permitAll()
+                        // FIX (Test 6): the H2 console is disabled and no longer permitted here.
                         // FIX (Test 2): role checks on the SERVER, not only hidden buttons in the UI.
                         .requestMatchers(antMatcher("/api/admin/**")).hasRole("ADMIN")
                         .requestMatchers(antMatcher("/api/teacher/**")).hasAnyRole("TEACHER", "ADMIN")
