@@ -86,9 +86,8 @@ input:focus-visible, select:focus-visible { outline-offset: -1px; }
 .error { margin-top: 1rem; padding: .7rem .9rem; border-radius: 4px; background: var(--bad-bg); color: var(--bad); }
 
 /* ---------- engraving ---------- */
-.seal { display: block; width: 100%; height: auto; overflow: visible; }
-.engraved { fill: none; stroke: currentColor; stroke-width: 1; }
-.pass-seal .engraved { vector-effect: non-scaling-stroke; stroke-width: .8; }
+.seal { display: block; width: 100%; aspect-ratio: 1; touch-action: pan-y; cursor: grab; }
+.seal:active { cursor: grabbing; }
 .mrz { font-family: var(--mono); line-height: 1.45; white-space: pre; overflow: hidden; }
 .mrz span { display: block; }
 
@@ -107,12 +106,8 @@ input:focus-visible, select:focus-visible { outline-offset: -1px; }
     grid-area: 1 / 2; position: relative; display: flex; flex-direction: column; justify-content: space-between;
     padding: 2rem 2.75rem 1.75rem; overflow: hidden; background: var(--field); color: #ffffff;
 }
-.login-seal { position: absolute; top: 50%; right: -14%; width: min(112vh, 90%); transform: translateY(-54%); color: rgba(255, 255, 255, .62); }
-.login-seal .engraved { stroke-width: 1.2; stroke-dasharray: 1; animation: engrave 2.2s ease-out both; }
-.login-seal .seal { animation: turn 240s linear infinite; }
-@keyframes engrave { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
-@keyframes turn { to { transform: rotate(360deg); } }
-.hero-body { position: relative; max-width: 25rem; margin-top: auto; padding-bottom: 2.25rem; }
+.login-seal { position: absolute; top: 50%; right: -14%; width: min(112vh, 90%); transform: translateY(-54%); color: rgba(255, 255, 255, .7); }
+.hero-body { position: relative; max-width: 27rem; margin-top: auto; padding-bottom: 2.25rem; }
 .hero-body h1 { font-size: clamp(2.3rem, 4.1vw, 4.2rem); letter-spacing: -.01em; }
 .hero-body p { margin-top: 1rem; font-size: 1.1rem; }
 .login-hero .wordmark { position: relative; }
@@ -120,6 +115,7 @@ input:focus-visible, select:focus-visible { outline-offset: -1px; }
 /* keeps the text readable where it crosses the engraving */
 .hero-body::before { content: ""; position: absolute; inset: -3rem -8rem 0 -6rem; z-index: -1; background: radial-gradient(closest-side, var(--field) 55%, transparent); }
 .hero-body { z-index: 0; }
+.hero-body, .login-hero .mrz, .login-hero .wordmark { pointer-events: none; }
 
 /* ---------- app shell ---------- */
 .topbar { position: sticky; top: 0; z-index: 5; background: var(--paper); border-bottom: 1.5px solid var(--line); }
@@ -133,7 +129,7 @@ input:focus-visible, select:focus-visible { outline-offset: -1px; }
 .tab:hover { color: var(--blue); }
 .tab:focus-visible { outline-offset: -3px; }
 .tab.active { color: var(--blue); border-bottom-color: var(--blue); font-weight: 600; }
-.layout { max-width: 1200px; margin: 0 auto; padding: 1.5rem 1.5rem 5rem; }
+.layout { overflow-x: clip; max-width: 1200px; margin: 0 auto; padding: 1.5rem 1.5rem 5rem; }
 .panel h1 { font-size: 2.6rem; margin-bottom: 1.1rem; }
 .panel > h2 { font-size: 1.6rem; margin: 2.75rem 0 .9rem; }
 .lead { max-width: 62ch; margin-bottom: 1.4rem; font-size: 1.08rem; }
@@ -189,20 +185,14 @@ input:focus-visible, select:focus-visible { outline-offset: -1px; }
     display: inline-grid; place-content: center; justify-items: center; color: var(--blue); border: 3px double currentColor;
     font-family: var(--display); font-weight: 600; line-height: 1; white-space: nowrap;
 }
+.stamp.round { cursor: pointer; }
 .stamp.bad { color: var(--bad); }
 .stamp.round { width: 112px; height: 112px; border-width: 6px; border-radius: 50%; font-size: 2.6rem; transform: rotate(-7deg); }
 .course:nth-child(2n) .stamp { transform: rotate(5deg); }
 .course:nth-child(3n) .stamp { transform: rotate(-3deg); }
 .stamp small { margin-top: .25rem; font: 400 .85rem var(--body); }
-.stamp.wide { grid-auto-flow: column; align-items: center; gap: .6rem; padding: .42rem .9rem; border-width: 5px; border-radius: 6px; font-size: 1.15rem; transform: rotate(-3deg); animation: stamp .28s cubic-bezier(.2, .9, .3, 1) both; }
+.stamp.wide { grid-auto-flow: column; align-items: center; gap: .6rem; padding: .42rem .9rem; border-width: 5px; border-radius: 6px; font-size: 1.15rem; transform: rotate(-3deg); }
 tr:nth-child(2n) .stamp.wide { transform: rotate(2deg); }
-tr:nth-child(2) .stamp { animation-delay: .16s; }
-tr:nth-child(3) .stamp { animation-delay: .32s; }
-tr:nth-child(4) .stamp { animation-delay: .48s; }
-tr:nth-child(5) .stamp { animation-delay: .64s; }
-tr:nth-child(6) .stamp { animation-delay: .8s; }
-@keyframes stamp { from { opacity: 0; scale: 1.9; } to { opacity: 1; scale: 1; } }
-
 /* ---------- tables ---------- */
 .table-wrap { overflow-x: auto; }
 table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
@@ -220,6 +210,33 @@ input.num { width: 5rem; }
 #contact-card .btn:hover { background: rgba(255, 255, 255, .15); }
 #checks-body td { height: 74px; }
 .checks-result { min-height: 1.6rem; margin: 1rem 0; font-weight: 600; }
+
+/* request route on the access check */
+.route { position: relative; display: grid; grid-template-columns: repeat(4, 1fr); align-items: center; height: 110px; margin-bottom: 1.25rem; border-radius: 8px; background: var(--field); color: #ffffff; overflow: hidden; }
+.route-line { position: absolute; left: 12.5%; right: 12.5%; top: 50%; border-top: 2px dashed rgba(255, 255, 255, .55); }
+.station { position: relative; z-index: 1; justify-self: center; padding: .45rem .9rem; border-radius: 4px; background: #ffffff; color: #0a1f66; font: 600 1.05rem/1.2 var(--display); text-align: center; }
+.request { position: absolute; z-index: 2; left: 12.5%; top: calc(50% - 38px); width: 20px; height: 20px; margin-left: -10px; border-radius: 50%; background: #ffffff; }
+.request.ok { box-shadow: 0 0 0 6px rgba(255, 255, 255, .35); }
+.request.no { background: #ff6374; box-shadow: 0 0 0 6px rgba(255, 99, 116, .4); }
+
+/* seal lab */
+.lab { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 2.25rem; align-items: start; }
+.lab-stage { padding: 1.5rem; border-radius: 8px; background: var(--field); color: #ffffff; }
+.lab-stage > div { max-width: 600px; margin: 0 auto; }
+.lab-controls label { display: block; margin: .9rem 0 .2rem; color: var(--soft); }
+.lab-controls label:first-child { margin-top: 0; }
+.lab-controls .toolbar { margin-top: 1.4rem; }
+input[type="range"] { min-height: 32px; padding: 0; border: 0; background: none; accent-color: var(--blue); cursor: pointer; }
+
+/* movement */
+.btn, .chip { transition: transform .15s; }
+.btn:active:not(:disabled), .chip:active { transform: scale(.94); }
+.bar-fill { transform-origin: 0 0; }
+.door { transition: transform .2s; }
+.door:hover { transform: translateX(-6px); }
+.course h2 { transition: color .2s, transform .2s; }
+.course:hover h2 { color: var(--blue); transform: translateX(8px); }
+::view-transition-old(root), ::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
 
 /* ---------- profile, about ---------- */
 #profile-form { max-width: 520px; }
@@ -243,6 +260,8 @@ input.num { width: 5rem; }
     .doors { grid-column: 1 / -1; margin-top: 1.2rem; display: grid; grid-template-columns: 1fr 1fr; gap: 0 2rem; }
 }
 @media (max-width: 800px) {
+    .lab { grid-template-columns: minmax(0, 1fr); gap: 1.25rem; }
+    .station { padding: .35rem .4rem; font-size: .85rem; }
     .login-page { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto; }
     .login-hero { grid-area: 1 / 1; min-height: 250px; padding: 1.25rem 1.25rem 1rem; }
     .login-main { grid-area: 2 / 1; padding: 1.25rem 1.25rem 2.5rem; }

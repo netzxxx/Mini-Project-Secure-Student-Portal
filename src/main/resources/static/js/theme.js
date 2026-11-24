@@ -19,9 +19,11 @@
         };
         label();
         button.addEventListener('click', () => {
-            root.dataset.theme = root.dataset.theme === 'dark' ? 'light' : 'dark';
-            try { localStorage.setItem(KEY, root.dataset.theme); } catch { /* theme just won't persist */ }
-            label();
+            Motion.reveal(button, () => {
+                root.dataset.theme = root.dataset.theme === 'dark' ? 'light' : 'dark';
+                try { localStorage.setItem(KEY, root.dataset.theme); } catch { /* theme just won't persist */ }
+                label();
+            });
         });
     });
 })();

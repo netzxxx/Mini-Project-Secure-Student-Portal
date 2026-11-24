@@ -6,6 +6,7 @@
     <title>Secure Student Portal</title>
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%231440d8'/%3E%3Crect x='11' y='6' width='10' height='3' rx='1.5' fill='%23fff'/%3E%3Crect x='8' y='15' width='16' height='11' rx='3' fill='%23fff'/%3E%3C/svg%3E">
     <link rel="stylesheet" href="/css/style.css">
+    <script src="/js/motion.js"></script>
     <script src="/js/theme.js"></script>
 </head>
 <body>
@@ -26,6 +27,7 @@
         <button class="tab hidden" type="button" data-tab="admin" data-roles="ADMIN">Admin</button>
         <button class="tab hidden" type="button" data-tab="profile" data-roles="STUDENT TEACHER ADMIN">Profile</button>
         <button class="tab hidden" type="button" data-tab="access" data-roles="STUDENT TEACHER ADMIN">Access check</button>
+        <button class="tab hidden" type="button" data-tab="seal" data-roles="STUDENT TEACHER ADMIN">Seal lab</button>
         <button class="tab hidden" type="button" data-tab="about" data-roles="STUDENT TEACHER ADMIN">About</button>
     </nav>
 </header>
@@ -89,6 +91,10 @@
         <h1>Access check</h1>
         <p class="lead">Send real requests with your current token and see what the server answers. Hiding a button
             protects nothing, so the API has to refuse on its own. Refused requests appear in the admin audit log.</p>
+        <div id="route" class="route" aria-hidden="true">
+            <span class="route-line"></span>
+            <span class="station">Browser</span><span class="station">JWT check</span><span class="station">Access rules</span><span class="station">Data</span>
+        </div>
         <button id="run-checks" class="btn primary" type="button">Run access check</button>
         <p id="checks-result" class="checks-result" role="status"></p>
         <div class="table-wrap">
@@ -96,6 +102,33 @@
                 <thead><tr><th>Request</th><th>What it opens</th><th>Expected</th><th>Server answer</th><th>Result</th></tr></thead>
                 <tbody id="checks-body"></tbody>
             </table>
+        </div>
+    </section>
+
+    <section id="tab-seal" class="panel hidden">
+        <h1>Seal lab</h1>
+        <div class="lab">
+            <div id="lab-stage" class="lab-stage"><div id="lab-canvas"></div></div>
+            <div class="lab-controls">
+                <label for="lab-text">Text</label>
+                <input id="lab-text" maxlength="40">
+                <label for="lab-outer">Outer petals</label>
+                <input id="lab-outer" type="range" min="2" max="30">
+                <label for="lab-middle">Middle petals</label>
+                <input id="lab-middle" type="range" min="2" max="20">
+                <label for="lab-inner">Inner petals</label>
+                <input id="lab-inner" type="range" min="2" max="16">
+                <label for="lab-depth">Wave depth</label>
+                <input id="lab-depth" type="range" min="0" max="220" value="100">
+                <label for="lab-speed">Speed</label>
+                <input id="lab-speed" type="range" min="0" max="30" value="1">
+                <div class="toolbar">
+                    <button id="lab-random" class="btn primary" type="button">Random seal</button>
+                    <button id="lab-wave" class="btn" type="button">Send a wave</button>
+                    <button id="lab-mine" class="btn" type="button">My seal</button>
+                    <button id="lab-save" class="btn" type="button">Save as PNG</button>
+                </div>
+            </div>
         </div>
     </section>
 
@@ -131,7 +164,9 @@
 </div>
 
 <script src="/js/api.js"></script>
+<script src="/js/seal.js"></script>
 <script src="/js/pass.js"></script>
+<script src="/js/lab.js"></script>
 <script src="/js/app.js"></script>
 </body>
 </html>

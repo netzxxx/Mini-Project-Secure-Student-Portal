@@ -10,16 +10,21 @@
     Api.showBuild($('build-badge'));
 
     // The seal and the line under it are drawn from the typed username.
+    const seal = Seal.mount($('login-seal'), '', { width: 1 });
+    const line1 = el('span', {});
+    const line2 = el('span', {});
+    $('login-mrz').replaceChildren(line1, line2);
+    Motion.decode(line2, Pass.mrz(['NARXOZ', 'ACCESS CHECKED BY SERVER']));
+
     function engrave() {
         const name = user.value.trim().toLowerCase();
-        $('login-seal').replaceChildren(Pass.seal(name));
-        $('login-mrz').replaceChildren(
-            el('span', {}, Pass.mrz(['PORTAL', name || 'username'])),
-            el('span', {}, Pass.mrz(['NARXOZ', 'ACCESS CHECKED BY SERVER'])));
+        seal.setText(name);
+        Motion.decode(line1, Pass.mrz(['PORTAL', name || 'username']));
     }
 
     let engraveTimer = null;
     engrave();
+    pass.addEventListener('input', () => seal.kick());
     user.addEventListener('input', () => {
         clearTimeout(engraveTimer);
         engraveTimer = setTimeout(engrave, 250);
@@ -31,6 +36,7 @@
             pass.value = chip.dataset.pass;
             document.querySelectorAll('.chip').forEach((c) => c.setAttribute('aria-pressed', String(c === chip)));
             engrave();
+            seal.ripple();
         });
     });
 
@@ -76,8 +82,10 @@
         try {
             const res = await Api.post('/api/auth/login', { username: user.value.trim(), password: pass.value });
             Api.setToken(res.token);
+            await seal.admit();
             window.location.href = '/app.html';
         } catch (err) {
+            seal.refuse();
             if (err.status === 429 && err.retryAfter) showLock(err.retryAfter);
             else if (err.status === 429) showError('Too many failed attempts. Try again later.');
             else if (err.status === 401 || err.status === 400) showError('Invalid username or password.');

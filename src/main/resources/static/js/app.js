@@ -40,7 +40,9 @@
         });
         document.querySelectorAll('.panel').forEach((p) => p.classList.toggle('hidden', p.id !== 'tab-' + name));
         // working screens get the full height
-        $('pass').classList.toggle('hidden', ['admin', 'access', 'about'].includes(name));
+        $('pass').classList.toggle('hidden', ['admin', 'access', 'seal', 'about'].includes(name));
+        const open = $('tab-' + name);
+        Motion.rise([...open.children].filter((n) => n.id !== 'contact-card'));
         loaders[name]().catch(handleError);
     }
 
@@ -118,6 +120,13 @@
             el('div', { class: 'course-bars' }, bar('Midterm', g.midterm), bar('Final', g.finalExam)),
             el('p', { class: 'stamp round' + (g.total < 50 ? ' bad' : '') }, g.letter, el('small', {}, g.total + ' / 100')))));
 
+        Motion.rise([...$('grades-body').children]);
+        $('grades-body').querySelectorAll('.bar-fill').forEach((b, i) => Motion.grow(b, 200 + i * 60));
+        $('grades-body').querySelectorAll('.stamp').forEach((s, i) => {
+            Motion.stamp(s, 500 + i * 180);
+            s.addEventListener('click', () => Motion.stamp(s)); // press it again
+        });
+
         const avg = Math.round(grades.reduce((s, g) => s + g.total, 0) / grades.length);
         const best = grades.reduce((a, b) => (b.total > a.total ? b : a));
         $('grade-stats').replaceChildren(
@@ -125,6 +134,7 @@
             fact('Courses', grades.length),
             fact('Passed', grades.filter((g) => g.total >= 50).length + ' of ' + grades.length),
             fact('Best course', best.courseCode));
+        Motion.count($('grade-stats').querySelector('strong'), avg, ' / 100');
     }
 
     function fact(label, value) {
@@ -274,7 +284,7 @@
             const ok = c.status === c.expected;
             const words = { 200: 'Admitted', 403: 'Refused' };
             const answer = c.status === null ? el('span', { class: 'muted' }, 'Not sent')
-                : el('span', { class: 'stamp wide' + (c.status === 403 ? ' bad' : '') },
+                : el('span', { class: 'stamp wide' + (c.fresh ? ' fresh' : '') + (c.status === 403 ? ' bad' : '') },
                     el('span', {}, c.status), el('span', {}, words[c.status] || 'Error'));
             const verdict = c.status === null ? '' : (ok ? 'As expected' : 'Not as expected');
             return el('tr', {}, el('td', { class: 'mono' }, 'GET ' + c.path), el('td', {}, c.what),
@@ -283,12 +293,37 @@
         }));
     }
 
+    // Draws one request on the route: 401 stops at the JWT check, other refusals at the access rules.
+    async function travel(status) {
+        if (Motion.calm) return;
+        const stations = [...document.querySelectorAll('.station')];
+        const stop = status === 200 ? 3 : (status === 401 ? 1 : 2);
+        const at = (i) => ((i + 0.5) * 25) + '%';
+        const dot = el('span', { class: 'request' });
+        $('route').append(dot);
+        await Promise.race([Motion.wait(900), dot.animate({ left: [at(0), at(stop)] }, { duration: stop * 170, easing: 'ease-in', fill: 'forwards' }).finished]);
+        dot.classList.add(status === 200 ? 'ok' : 'no');
+        stations[stop].animate({ transform: ['scale(1)', 'scale(1.18)', 'scale(1)'] }, { duration: 260 });
+        await Motion.wait(160);
+        dot.animate({ left: [at(stop), at(0)], opacity: [1, 0] }, { duration: 320, easing: 'ease-out', fill: 'forwards' });
+        await Motion.wait(240);
+        dot.remove();
+    }
+
     $('run-checks').addEventListener('click', async (e) => {
         const button = e.currentTarget;
         button.disabled = true;
         try {
-            const rows = await Promise.all(checks().map(async (c) => ({ ...c, status: await Api.probe(c.path) })));
-            renderChecks(rows);
+            // one request after another, so every answer can be seen on the route
+            const rows = checks();
+            for (const c of rows) {
+                c.status = await Api.probe(c.path);
+                await travel(c.status);
+                c.fresh = true;
+                renderChecks(rows);
+                document.querySelectorAll('.stamp.fresh').forEach((s) => Motion.stamp(s));
+                c.fresh = false;
+            }
             const wrong = rows.filter((c) => c.status !== c.expected).length;
             $('checks-result').textContent = wrong
                 ? wrong + ' of ' + rows.length + ' answers differ from the access rules.'
@@ -329,7 +364,7 @@
 
     const loaders = {
         grades: loadGrades, courses: loadCourses, admin: loadAdmin, profile: loadProfile,
-        access: loadChecks, about: async () => {},
+        access: loadChecks, seal: async () => Lab.open(me.username), about: async () => {},
     };
 
     $('logout').addEventListener('click', signOut);
@@ -339,6 +374,7 @@
     Api.get('/api/me').then((user) => {
         me = user;
         renderPass();
+        Motion.tilt($('pass'));
         startSessionClock();
         setupTabs();
     }).catch(handleError);
