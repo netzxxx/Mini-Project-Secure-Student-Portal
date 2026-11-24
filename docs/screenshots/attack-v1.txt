@@ -1,0 +1,34 @@
+Secure Student Portal - security checks
+target: http://localhost:8080   build: v1-vulnerable
+
+[T1] VULNERABLE  IDOR: student reads another student's grades
+      GET /api/students/4/grades as student_a (own)   -> 200
+      GET /api/students/5/grades as student_a (B's)   -> 200
+      leaked: 3 grades of Bolat Student
+
+[T2] VULNERABLE  Admin API callable from Student role
+      GET /api/admin/users as student_a             -> 200
+      GET /api/admin/audit as student_a             -> 200
+      PUT /api/admin/users/4/role as student_a       -> 200
+      GET /api/admin/users as admin (control)       -> 200
+
+[T3] VULNERABLE  Excessive data exposure (passwordHash, IIN)
+      POST /api/auth/login        -> sensitive fields: ['passwordHash', 'iin']
+      GET  /api/me                -> 200, sensitive fields: ['passwordHash', 'iin']
+      GET  /api/users/5 (B) as A -> 200, sensitive fields: ['passwordHash', 'iin']
+
+[T4] VULNERABLE  Mass assignment: student sets own role
+      PATCH /api/me {"role":"ADMIN"} as student_c -> 200
+      role of student_c after re-login              -> ADMIN
+      normal profile update (control)               -> 200
+      (role reverted to STUDENT by admin after the test)
+
+[T6] VULNERABLE  Security misconfiguration (console, errors, headers)
+      GET /h2-console/ (no login)            -> 200
+      GET /api/students/abc/grades           -> 400, stack trace in body: True
+      GET / missing security headers         -> ['x-content-type-options', 'x-frame-options', 'content-security-policy']
+
+[T5] VULNERABLE  Login brute force without limit
+      8 wrong passwords for teacher_saule -> [401, 401, 401, 401, 401, 401, 401, 401]
+
+Result: 6 vulnerable

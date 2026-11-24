@@ -1,0 +1,32 @@
+Secure Student Portal - security checks
+target: http://localhost:8080   build: v2-fixed
+
+[T1] SECURE  IDOR: student reads another student's grades
+      GET /api/students/4/grades as student_a (own)   -> 200
+      GET /api/students/5/grades as student_a (B's)   -> 403
+
+[T2] SECURE  Admin API callable from Student role
+      GET /api/admin/users as student_a             -> 403
+      GET /api/admin/audit as student_a             -> 403
+      PUT /api/admin/users/4/role as student_a       -> 403
+      GET /api/admin/users as admin (control)       -> 200
+
+[T3] SECURE  Excessive data exposure (passwordHash, IIN)
+      POST /api/auth/login        -> sensitive fields: none
+      GET  /api/me                -> 200, sensitive fields: none
+      GET  /api/users/5 (B) as A -> 403, sensitive fields: none
+
+[T4] SECURE  Mass assignment: student sets own role
+      PATCH /api/me {"role":"ADMIN"} as student_c -> 400
+      role of student_c after re-login              -> STUDENT
+      normal profile update (control)               -> 200
+
+[T6] SECURE  Security misconfiguration (console, errors, headers)
+      GET /h2-console/ (no login)            -> 401
+      GET /api/students/abc/grades           -> 400, stack trace in body: False
+      GET / missing security headers         -> none
+
+[T5] SECURE  Login brute force without limit
+      8 wrong passwords for teacher_saule -> [401, 401, 401, 401, 401, 429, 429, 429]
+
+Result: 0 vulnerable
