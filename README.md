@@ -59,6 +59,7 @@ Other options:
 | `student_c` (Dana) | `Student#2026` | Student |
 | `teacher_timur` | `Teacher#2026` | Teacher (CS-301, CS-310) |
 | `teacher_saule` | `Teacher#2026` | Teacher (NET-210) |
+| `teacher_sholpan` | `Teacher#2026` | Teacher (SEC-320) |
 | `admin` | `Admin#2026` | Admin |
 
 These are dummy demo passwords for a local in-memory database.

@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 
 /**
  * Creates made-up demo accounts, courses and grades on every start
- * (the H2 database lives in memory). No real people or real data.
+ * (the H2 database lives in memory). All contacts and grades are invented.
  *
  * Demo passwords: Student#2026, Teacher#2026, Admin#2026
  */
@@ -55,9 +55,14 @@ public class DataSeeder implements CommandLineRunner {
         User c = users.save(new User("student_c", studentPw, "Dana Student",
                 "dana@portal.local", "+7 700 000 0003", "DEMO-IIN-0003", "SEC-23-2", Role.STUDENT));
 
+        // added last, so the ids 1-6 used in the demo script and tests do not change
+        User sholpan = users.save(new User("teacher_sholpan", teacherPw, "Sholpan Sabidolda",
+                "sholpan@portal.local", "+7 700 000 0103", "DEMO-IIN-0103", null, Role.TEACHER));
+
         Course webSec = courses.save(new Course("CS-301", "Web and Mobile Application Security", timur));
         Course secDev = courses.save(new Course("CS-310", "Secure Software Development", timur));
         Course netSec = courses.save(new Course("NET-210", "Network Security", saule));
+        Course webApps = courses.save(new Course("SEC-320", "Security of Web Applications", sholpan));
 
         grades.save(new Grade(a, webSec, 88, 92, "Strong lab reports"));
         grades.save(new Grade(a, secDev, 75, 81, "Good progress"));
@@ -69,5 +74,9 @@ public class DataSeeder implements CommandLineRunner {
 
         grades.save(new Grade(c, webSec, 95, 97, "Excellent"));
         grades.save(new Grade(c, netSec, 80, 78, null));
+
+        grades.save(new Grade(a, webApps, 93, 96, "Found the IDOR on the first try"));
+        grades.save(new Grade(b, webApps, 72, 68, null));
+        grades.save(new Grade(c, webApps, 84, 89, "Clear report"));
     }
 }
