@@ -1,0 +1,8 @@
+services:
+  portal:
+    build: .
+    ports:
+      # bound to localhost only: the vulnerable build must never be reachable from the network
+      - "127.0.0.1:8080:8080"
+    environment:
+      JWT_SECRET: ${JWT_SECRET:-local-demo-secret-please-change-0123456789}

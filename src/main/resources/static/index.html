@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Sign in · Secure Student Portal</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="login-page">
+<main class="login-card">
+    <div class="brand">
+        <span class="brand-mark">SP</span>
+        <div>
+            <h1>Student Portal</h1>
+            <p class="muted">Mini project · Mobile and Web Application Security</p>
+        </div>
+    </div>
+
+    <p id="build-badge" class="badge hidden"></p>
+
+    <form id="login-form" autocomplete="off" novalidate>
+        <label for="username">Username</label>
+        <input id="username" name="username" required maxlength="64" autocomplete="username">
+
+        <label for="password">Password</label>
+        <input id="password" name="password" type="password" required maxlength="128"
+               autocomplete="current-password">
+
+        <button type="submit" class="btn primary">Sign in</button>
+        <p id="login-error" class="error hidden" role="alert"></p>
+    </form>
+
+    <section class="demo-accounts">
+        <h2>Demo accounts <span class="muted">(made-up data, local use only)</span></h2>
+        <div class="chips">
+            <button type="button" class="chip" data-user="student_a" data-pass="Student#2026">student_a</button>
+            <button type="button" class="chip" data-user="student_b" data-pass="Student#2026">student_b</button>
+            <button type="button" class="chip" data-user="student_c" data-pass="Student#2026">student_c</button>
+            <button type="button" class="chip" data-user="teacher_timur" data-pass="Teacher#2026">teacher_timur</button>
+            <button type="button" class="chip" data-user="teacher_saule" data-pass="Teacher#2026">teacher_saule</button>
+            <button type="button" class="chip" data-user="admin" data-pass="Admin#2026">admin</button>
+        </div>
+    </section>
+</main>
+<script src="/js/api.js"></script>
+<script src="/js/login.js"></script>
+</body>
+</html>
