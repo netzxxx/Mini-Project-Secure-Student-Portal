@@ -30,9 +30,23 @@ const Api = (() => {
         if (!res.ok) {
             const err = new Error((data && (data.error || data.message)) || ('HTTP ' + res.status));
             err.status = res.status;
+            err.retryAfter = Number(res.headers.get('Retry-After')) || 0;
             throw err;
         }
         return data;
+    }
+
+    // Only the HTTP status of a GET request; 403 is an expected answer here, not an error.
+    async function probe(path) {
+        const res = await fetch(path, { headers: { 'Authorization': 'Bearer ' + token() }, cache: 'no-store' });
+        return res.status;
+    }
+
+    // Payload of the JWT, for display only. The signature is verified by the server.
+    function claims() {
+        try {
+            return JSON.parse(atob(token().split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
+        } catch { return {}; }
     }
 
     async function showBuild(el) {
@@ -45,7 +59,7 @@ const Api = (() => {
     }
 
     return {
-        token, setToken, showBuild,
+        token, setToken, showBuild, probe, claims,
         get: (p) => request('GET', p),
         post: (p, b) => request('POST', p, b),
         put: (p, b) => request('PUT', p, b),
