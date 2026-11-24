@@ -16,6 +16,7 @@ Only the Python standard library is used. Use it ONLY against your own local app
 import argparse
 import json
 import sys
+import time
 import urllib.error
 import urllib.request
 
@@ -177,6 +178,19 @@ TESTS = [
 ]
 
 
+def wait_until_ready(c, seconds=60):
+    """The demo data is created right after start-up; wait until a demo login works."""
+    for _ in range(seconds):
+        try:
+            if c.call("POST", "/api/auth/login",
+                      body={"username": "admin", "password": DEMO["admin"]}).status == 200:
+                return
+        except OSError:
+            pass
+        time.sleep(1)
+    sys.exit(f"App at {c.base} is not reachable or demo data is missing.")
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--base", default="http://localhost:8080")
@@ -188,6 +202,7 @@ def main():
         RED = GREEN = YELLOW = BOLD = RESET = ""
 
     c = Client(args.base)
+    wait_until_ready(c)
     info = c.call("GET", "/api/info")
     build = info.json.get("build") if info.json else "unknown"
     print(f"{BOLD}Secure Student Portal - security checks{RESET}")
