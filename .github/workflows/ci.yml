@@ -21,7 +21,7 @@ jobs:
           java-version: "21"
           cache: maven
       - name: Build and run JUnit tests
-        run: ./mvnw -B verify
+        run: mvn -B verify   # Maven preinstalled on the runner (avoids a wrapper download)
       - uses: actions/upload-artifact@v4
         with:
           name: app-jar
@@ -45,7 +45,7 @@ jobs:
       - name: Trivy filesystem scan (official Docker image)
         run: >
           docker run --rm -v "$PWD:/src" aquasec/trivy:latest fs
-          --scanners vuln,secret,misconfig --severity HIGH,CRITICAL --exit-code 0 /src
+          --scanners vuln,secret,misconfig --severity HIGH,CRITICAL --offline-scan --exit-code 0 /src
 
   dast:
     name: DAST - OWASP ZAP baseline
