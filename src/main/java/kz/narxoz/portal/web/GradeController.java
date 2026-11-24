@@ -38,10 +38,30 @@ public class GradeController {
     /** Grades of one student. The frontend calls it with the logged-in student's own id. */
     @GetMapping("/api/students/{studentId}/grades")
     @Transactional(readOnly = true)
-    public List<GradeDto> studentGrades(@PathVariable Long studentId) {
-        // VULNERABLE (Test 1): IDOR. The id comes from the URL and is never compared
-        // with the logged-in user, so student_a can read student_b's grades.
-        return grades.findByStudentId(studentId).stream().map(GradeDto::from).toList();
+    public List<GradeDto> studentGrades(@PathVariable Long studentId, HttpServletRequest http) {
+        // FIX (Test 1): object-level authorization. The id from the URL is checked
+        // against the logged-in user on the server:
+        //   STUDENT -> only their own id
+        //   TEACHER -> only grades in courses they teach
+        //   ADMIN   -> everything
+        User me = current.get();
+        List<Grade> list = grades.findByStudentId(studentId);
+
+        if (me.getRole() == Role.TEACHER) {
+            list = list.stream()
+                    .filter(g -> g.getCourse().getTeacher().getId().equals(me.getId()))
+                    .toList();
+        }
+        boolean allowed = switch (me.getRole()) {
+            case STUDENT -> me.getId().equals(studentId);
+            case TEACHER -> !list.isEmpty();
+            case ADMIN -> true;
+        };
+        if (!allowed) {
+            audit.log(me.getUsername(), "READ_GRADES student=" + studentId, "DENIED", http);
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+        }
+        return list.stream().map(GradeDto::from).toList();
     }
 
     /** Teacher updates a grade in one of their own courses (admin may update any). */
