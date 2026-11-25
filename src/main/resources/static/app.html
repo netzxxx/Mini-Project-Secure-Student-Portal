@@ -4,55 +4,59 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Secure Student Portal</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%231440d8'/%3E%3Crect x='11' y='6' width='10' height='3' rx='1.5' fill='%23fff'/%3E%3Crect x='8' y='15' width='16' height='11' rx='3' fill='%23fff'/%3E%3C/svg%3E">
     <link rel="stylesheet" href="/css/style.css">
+    <script src="/js/motion.js"></script>
+    <script src="/js/theme.js"></script>
 </head>
 <body>
 <header class="topbar">
-    <div class="brand small">
-        <span class="brand-mark">SP</span>
-        <span>Student Portal</span>
+    <div class="topbar-row">
+        <span class="wordmark">Secure Student Portal</span>
+        <span id="build-badge" class="badge hidden"></span>
+        <div class="who">
+            <button id="theme-toggle" class="btn ghost small" type="button">Dark theme</button>
+            <button id="logout" class="btn ghost small" type="button">Log out</button>
+        </div>
     </div>
-    <span id="build-badge" class="badge hidden"></span>
-    <div class="who">
-        <span id="who-name"></span>
-        <span id="who-role" class="role-pill"></span>
-        <button id="logout" class="btn ghost" type="button">Log out</button>
-    </div>
+    <nav class="tabs" id="tabs" aria-label="Sections">
+        <button class="tab hidden" type="button" data-tab="grades" data-roles="STUDENT">My grades</button>
+        <button class="tab hidden" type="button" data-tab="courses" data-roles="TEACHER ADMIN">Courses</button>
+        <!-- The Admin tab is only HIDDEN for other roles. This is UI convenience, not security:
+             the server must still check the role on every /api/admin request. -->
+        <button class="tab hidden" type="button" data-tab="admin" data-roles="ADMIN">Admin</button>
+        <button class="tab hidden" type="button" data-tab="profile" data-roles="STUDENT TEACHER ADMIN">Profile</button>
+        <button class="tab hidden" type="button" data-tab="access" data-roles="STUDENT TEACHER ADMIN">Access check</button>
+        <button class="tab hidden" type="button" data-tab="seal" data-roles="STUDENT TEACHER ADMIN">Seal lab</button>
+        <button class="tab hidden" type="button" data-tab="about" data-roles="STUDENT TEACHER ADMIN">About</button>
+    </nav>
 </header>
 
-<nav class="tabs" id="tabs">
-    <button class="tab" data-tab="grades" data-roles="STUDENT">My grades</button>
-    <button class="tab" data-tab="courses" data-roles="TEACHER ADMIN">Courses</button>
-    <!-- The Admin tab is only HIDDEN for other roles. This is UI convenience, not security:
-         the server must still check the role on every /api/admin request. -->
-    <button class="tab" data-tab="admin" data-roles="ADMIN">Admin</button>
-    <button class="tab" data-tab="profile" data-roles="STUDENT TEACHER ADMIN">Profile</button>
-</nav>
+<div class="layout">
+<aside class="side">
+    <section id="pass" class="pass role-none" aria-label="Your campus pass"></section>
+</aside>
 
 <main class="content">
     <p id="flash" class="flash hidden" role="status"></p>
 
     <section id="tab-grades" class="panel hidden">
-        <h2>My grades</h2>
-        <div class="stats" id="grade-stats"></div>
-        <div class="table-wrap">
-            <table>
-                <thead>
-                <tr><th>Course</th><th>Teacher</th><th>Midterm</th><th>Final</th><th>Total</th><th>Letter</th><th>Comment</th></tr>
-                </thead>
-                <tbody id="grades-body"></tbody>
-            </table>
-        </div>
+        <h1>My grades</h1>
+        <div class="summary" id="grade-stats"></div>
+        <div id="grades-body"></div>
     </section>
 
     <section id="tab-courses" class="panel hidden">
-        <h2>Courses</h2>
+        <h1>Courses</h1>
         <div id="courses-list"></div>
-        <aside id="contact-card" class="card hidden"></aside>
+        <aside id="contact-card" class="card hidden" aria-label="Student contacts"></aside>
     </section>
 
     <section id="tab-admin" class="panel hidden">
-        <h2>Users and roles</h2>
+        <h1>Users and roles</h1>
+        <div class="toolbar">
+            <input id="user-search" type="search" placeholder="Name, username or group" aria-label="Search users">
+        </div>
         <div class="table-wrap">
             <table>
                 <thead><tr><th>ID</th><th>Username</th><th>Name</th><th>Group</th><th>Role</th><th></th></tr></thead>
@@ -60,6 +64,7 @@
             </table>
         </div>
         <h2>Security audit log</h2>
+        <div class="toolbar" id="audit-filters" role="group" aria-label="Filter audit log"></div>
         <div class="table-wrap">
             <table>
                 <thead><tr><th>Time</th><th>User</th><th>Action</th><th>Outcome</th><th>IP</th></tr></thead>
@@ -69,21 +74,99 @@
     </section>
 
     <section id="tab-profile" class="panel hidden">
-        <h2>My profile</h2>
-        <dl class="facts" id="profile-facts"></dl>
+        <h1>My profile</h1>
         <form id="profile-form" class="card" novalidate>
+            <dl class="facts" id="profile-facts"></dl>
             <label for="p-fullName">Full name</label>
-            <input id="p-fullName" maxlength="80" required>
+            <input id="p-fullName" maxlength="80" required autocomplete="name">
             <label for="p-email">Email</label>
-            <input id="p-email" type="email" maxlength="80">
+            <input id="p-email" type="email" maxlength="80" autocomplete="email">
             <label for="p-phone">Phone</label>
-            <input id="p-phone" maxlength="20">
-            <button type="submit" class="btn primary">Save</button>
+            <input id="p-phone" type="tel" maxlength="20" autocomplete="tel">
+            <button type="submit" class="btn primary">Save profile</button>
         </form>
     </section>
+
+    <section id="tab-access" class="panel hidden">
+        <h1>Access check</h1>
+        <p class="lead">Send real requests with your current token and see what the server answers. Hiding a button
+            protects nothing, so the API has to refuse on its own. Refused requests appear in the admin audit log.</p>
+        <div id="route" class="route" aria-hidden="true">
+            <span class="route-line"></span>
+            <span class="station">Browser</span><span class="station">JWT check</span><span class="station">Access rules</span><span class="station">Data</span>
+        </div>
+        <button id="run-checks" class="btn primary" type="button">Run access check</button>
+        <p id="checks-result" class="checks-result" role="status"></p>
+        <div class="table-wrap">
+            <table>
+                <thead><tr><th>Request</th><th>What it opens</th><th>Expected</th><th>Server answer</th><th>Result</th></tr></thead>
+                <tbody id="checks-body"></tbody>
+            </table>
+        </div>
+    </section>
+
+    <section id="tab-seal" class="panel hidden">
+        <h1>Seal lab</h1>
+        <div class="lab">
+            <div id="lab-stage" class="lab-stage"><div id="lab-canvas"></div></div>
+            <div class="lab-controls">
+                <label for="lab-text">Text</label>
+                <input id="lab-text" maxlength="40">
+                <label for="lab-outer">Outer petals</label>
+                <input id="lab-outer" type="range" min="2" max="30">
+                <label for="lab-middle">Middle petals</label>
+                <input id="lab-middle" type="range" min="2" max="20">
+                <label for="lab-inner">Inner petals</label>
+                <input id="lab-inner" type="range" min="2" max="16">
+                <label for="lab-depth">Wave depth</label>
+                <input id="lab-depth" type="range" min="0" max="220" value="100">
+                <label for="lab-speed">Speed</label>
+                <input id="lab-speed" type="range" min="0" max="30" value="1">
+                <div class="toolbar">
+                    <button id="lab-random" class="btn primary" type="button">Random seal</button>
+                    <button id="lab-wave" class="btn" type="button">Send a wave</button>
+                    <button id="lab-mine" class="btn" type="button">My seal</button>
+                    <button id="lab-save" class="btn" type="button">Save as PNG</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="tab-about" class="panel hidden">
+        <h1>About the project</h1>
+        <p class="lead">A small portal built to show how access control breaks and how to fix it. The same app exists as
+            a deliberately vulnerable v1 and a fixed v2.</p>
+        <p class="path"><span>Browser</span><span>REST API with JWT</span><span>Spring Security</span><span>H2 database</span></p>
+
+        <h2>Six tests, six fixes</h2>
+        <div class="table-wrap">
+            <table>
+                <thead><tr><th>Test</th><th>In v1</th><th>In v2</th></tr></thead>
+                <tbody>
+                <tr><td><strong>T1</strong> IDOR</td><td>Changing the id in the URL showed another student's grades</td><td>The server checks who owns the record</td></tr>
+                <tr><td><strong>T2</strong> Admin API</td><td>A student token could list users and change roles</td><td>ADMIN role required in the filter chain and on the controller</td></tr>
+                <tr><td><strong>T3</strong> Data exposure</td><td>Responses included password hashes and IIN</td><td>Responses contain only the fields a screen needs</td></tr>
+                <tr><td><strong>T4</strong> Mass assignment</td><td>A profile update could also set the role</td><td>Only name, email and phone are accepted</td></tr>
+                <tr><td><strong>T5</strong> Brute force</td><td>Unlimited login attempts</td><td>Locked for 5 minutes after 5 wrong passwords</td></tr>
+                <tr><td><strong>T6</strong> Misconfiguration</td><td>Open H2 console and stack traces in errors</td><td>Console closed, generic errors, security headers</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <h2>Team</h2>
+        <div class="team">
+            <div class="card"><h3>Damir Panzhazov</h3><p>Frontend, T2, T4, T6, attack script, README</p></div>
+            <div class="card"><h3>Nietkali Nurmanov</h3><p>Backend, T1, T3, T5, CI pipeline</p></div>
+        </div>
+        <p class="muted">Narxoz University, Mobile and Web Application Security. All accounts and grades are made up.</p>
+    </section>
 </main>
+</div>
 
 <script src="/js/api.js"></script>
+<script src="/js/seal.js"></script>
+<script src="/js/pass.js"></script>
+<script src="/js/lab.js"></script>
 <script src="/js/app.js"></script>
 </body>
 </html>

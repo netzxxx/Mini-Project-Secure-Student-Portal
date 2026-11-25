@@ -4,45 +4,62 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Sign in · Secure Student Portal</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%231440d8'/%3E%3Crect x='11' y='6' width='10' height='3' rx='1.5' fill='%23fff'/%3E%3Crect x='8' y='15' width='16' height='11' rx='3' fill='%23fff'/%3E%3C/svg%3E">
     <link rel="stylesheet" href="/css/style.css">
+    <script src="/js/motion.js"></script>
+    <script src="/js/theme.js"></script>
 </head>
 <body class="login-page">
-<main class="login-card">
-    <div class="brand">
-        <span class="brand-mark">SP</span>
-        <div>
-            <h1>Student Portal</h1>
-            <p class="muted">Mini project · Mobile and Web Application Security</p>
-        </div>
+<aside class="login-hero">
+    <div id="login-seal" class="login-seal"></div>
+    <p class="wordmark">Secure Student Portal</p>
+    <div class="hero-body">
+        <h1>Every account has its own seal.</h1>
+        <p>Type a username to see yours. Drag it, push it, click it.</p>
     </div>
+    <p id="login-mrz" class="mrz" aria-hidden="true"></p>
+</aside>
 
-    <p id="build-badge" class="badge hidden"></p>
+<main class="login-main">
+    <div class="login-bar">
+        <span id="build-badge" class="badge hidden"></span>
+        <button id="theme-toggle" class="btn ghost small" type="button">Dark theme</button>
+    </div>
+    <div class="login-form-wrap">
+        <h2 class="login-title">Sign in</h2>
+        <form id="login-form" autocomplete="off" novalidate>
+            <label for="username">Username</label>
+            <input id="username" name="username" required maxlength="64" autocomplete="username">
 
-    <form id="login-form" autocomplete="off" novalidate>
-        <label for="username">Username</label>
-        <input id="username" name="username" required maxlength="64" autocomplete="username">
+            <label for="password">Password</label>
+            <div class="field-with-action">
+                <input id="password" name="password" type="password" required maxlength="128"
+                       autocomplete="current-password">
+                <button id="show-password" class="field-action" type="button" aria-label="Show password">Show</button>
+            </div>
 
-        <label for="password">Password</label>
-        <input id="password" name="password" type="password" required maxlength="128"
-               autocomplete="current-password">
+            <p id="login-error" class="error hidden" role="alert"></p>
+            <button id="login-submit" type="submit" class="btn primary">Sign in</button>
+        </form>
 
-        <button type="submit" class="btn primary">Sign in</button>
-        <p id="login-error" class="error hidden" role="alert"></p>
-    </form>
-
-    <section class="demo-accounts">
-        <h2>Demo accounts <span class="muted">(made-up data, local use only)</span></h2>
-        <div class="chips">
-            <button type="button" class="chip" data-user="student_a" data-pass="Student#2026">student_a</button>
-            <button type="button" class="chip" data-user="student_b" data-pass="Student#2026">student_b</button>
-            <button type="button" class="chip" data-user="student_c" data-pass="Student#2026">student_c</button>
-            <button type="button" class="chip" data-user="teacher_timur" data-pass="Teacher#2026">teacher_timur</button>
-            <button type="button" class="chip" data-user="teacher_saule" data-pass="Teacher#2026">teacher_saule</button>
-            <button type="button" class="chip" data-user="admin" data-pass="Admin#2026">admin</button>
-        </div>
-    </section>
+        <section class="demo-accounts">
+            <h3>Demo accounts</h3>
+            <p class="muted">Made-up data, local use only. Click one to fill in the form.</p>
+            <div class="chips">
+                <button type="button" class="chip" data-user="student_a" data-pass="Student#2026">student_a</button>
+                <button type="button" class="chip" data-user="student_b" data-pass="Student#2026">student_b</button>
+                <button type="button" class="chip" data-user="student_c" data-pass="Student#2026">student_c</button>
+                <button type="button" class="chip" data-user="teacher_timur" data-pass="Teacher#2026">teacher_timur</button>
+                <button type="button" class="chip" data-user="teacher_saule" data-pass="Teacher#2026">teacher_saule</button>
+                <button type="button" class="chip" data-user="teacher_sholpan" data-pass="Teacher#2026">teacher_sholpan</button>
+                <button type="button" class="chip" data-user="admin" data-pass="Admin#2026">admin</button>
+            </div>
+        </section>
+    </div>
 </main>
 <script src="/js/api.js"></script>
+<script src="/js/seal.js"></script>
+<script src="/js/pass.js"></script>
 <script src="/js/login.js"></script>
 </body>
 </html>
