@@ -6,6 +6,7 @@
     <title>Sign in · Secure Student Portal</title>
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%231440d8'/%3E%3Crect x='11' y='6' width='10' height='3' rx='1.5' fill='%23fff'/%3E%3Crect x='8' y='15' width='16' height='11' rx='3' fill='%23fff'/%3E%3C/svg%3E">
     <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/hud.css">
     <script src="/js/motion.js"></script>
     <script src="/js/theme.js"></script>
 </head>
@@ -17,6 +18,7 @@
         <h1>Every account has its own seal.</h1>
         <p>Type a username to see yours. Drag it, push it, click it.</p>
     </div>
+    <ul id="security-status" class="status" aria-label="Security status of this server"></ul>
     <p id="login-mrz" class="mrz" aria-hidden="true"></p>
 </aside>
 
@@ -58,6 +60,7 @@
     </div>
 </main>
 <script src="/js/api.js"></script>
+<script src="/js/hud.js"></script>
 <script src="/js/seal.js"></script>
 <script src="/js/pass.js"></script>
 <script src="/js/login.js"></script>

@@ -40,12 +40,13 @@ const Lab = (() => {
     function open(username) {
         owner = username;
         if (seal) return;
-        seal = Seal.mount($('lab-canvas'), owner, { width: 1 });
+        seal = Seal.mount($('lab-canvas'), owner, { width: 1, instrument: true });
         $('lab-text').value = owner;
         show(owner);
         $('lab-text').addEventListener('input', () => show($('lab-text').value.trim().toLowerCase()));
         [...NAMES, 'depth'].forEach((n) => $('lab-' + n).addEventListener('input', fromSliders));
         $('lab-speed').addEventListener('input', () => seal.setSpeed(Number($('lab-speed').value)));
+        $('lab-space').addEventListener('input', () => seal.setDepth(Number($('lab-space').value) / 100));
         $('lab-random').addEventListener('click', () => {
             const word = Math.random().toString(36).slice(2, 10);
             $('lab-text').value = word;

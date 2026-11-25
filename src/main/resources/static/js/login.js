@@ -10,7 +10,8 @@
     Api.showBuild($('build-badge'));
 
     // The seal and the line under it are drawn from the typed username.
-    const seal = Seal.mount($('login-seal'), '', { width: 1 });
+    const seal = Seal.mount($('login-seal'), '', { width: 1, instrument: true });
+    Hud.securityStatus($('security-status'));
     const line1 = el('span', {});
     const line2 = el('span', {});
     $('login-mrz').replaceChildren(line1, line2);

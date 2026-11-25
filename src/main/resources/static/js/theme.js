@@ -8,9 +8,8 @@
         try { return localStorage.getItem(KEY); } catch { return null; }
     }
 
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
     const stored = saved();
-    root.dataset.theme = stored === 'dark' || stored === 'light' ? stored : (prefersDark ? 'dark' : 'light');
+    root.dataset.theme = stored === 'dark' || stored === 'light' ? stored : 'dark';
 
     document.addEventListener('DOMContentLoaded', () => {
         const button = document.getElementById('theme-toggle');
