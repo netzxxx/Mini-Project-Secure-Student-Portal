@@ -41,6 +41,10 @@
         document.querySelectorAll('.panel').forEach((p) => p.classList.toggle('hidden', p.id !== 'tab-' + name));
         // working screens get the full height
         $('pass').classList.toggle('hidden', ['admin', 'access', 'reactor', 'about'].includes(name));
+        const withCharacter = ['grades', 'courses', 'profile'].includes(name);
+        $('char-panel').classList.toggle('hidden', !withCharacter);
+        $('layout').classList.toggle('with-character', withCharacter);
+        document.querySelector('.topbar').classList.toggle('wide', withCharacter);
         const open = $('tab-' + name);
         Motion.rise([...open.children].filter((n) => n.id !== 'contact-card'));
         loaders[name]().catch(handleError);
@@ -426,5 +430,6 @@
         Motion.tilt($('pass'));
         startSessionClock();
         setupTabs();
+        Character.start(me.username);
     }).catch(handleError);
 })();

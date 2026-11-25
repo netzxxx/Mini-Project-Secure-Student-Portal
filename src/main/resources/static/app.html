@@ -7,6 +7,7 @@
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%231440d8'/%3E%3Crect x='11' y='6' width='10' height='3' rx='1.5' fill='%23fff'/%3E%3Crect x='8' y='15' width='16' height='11' rx='3' fill='%23fff'/%3E%3C/svg%3E">
     <link rel="stylesheet" href="/css/style.css">
     <link rel="stylesheet" href="/css/hud.css">
+    <link rel="stylesheet" href="/css/character.css">
     <script src="/js/motion.js"></script>
     <script src="/js/theme.js"></script>
 </head>
@@ -33,7 +34,7 @@
     </nav>
 </header>
 
-<div class="layout">
+<div class="layout" id="layout">
 <aside class="side">
     <section id="pass" class="pass role-none" aria-label="Your campus pass"></section>
 </aside>
@@ -174,13 +175,43 @@
         <p class="muted">Narxoz University, Mobile and Web Application Security. All accounts and grades are made up.</p>
     </section>
 </main>
+
+<aside id="char-panel" class="char-panel hidden" aria-label="Your character">
+    <div id="char-view" class="char-view"></div>
+    <button id="char-open" class="btn primary" type="button">Edit character</button>
+</aside>
 </div>
+
+<dialog id="char-dialog" class="char-dialog" aria-label="Character editor">
+    <div id="char-stage" class="char-stage">
+        <div class="char-bar" role="group" aria-label="Camera">
+            <button class="chip" type="button" data-view="full">Whole figure</button>
+            <button class="chip" type="button" data-view="face">Face</button>
+            <button class="chip" type="button" data-view="top">Top</button>
+            <button class="chip" type="button" data-view="bottom">Legs</button>
+            <button class="chip" type="button" data-view="shoes">Shoes</button>
+        </div>
+    </div>
+    <nav id="char-sections" class="char-sections" aria-label="What to change"></nav>
+    <div class="char-side">
+        <div id="char-controls" class="char-controls"></div>
+        <div class="char-actions">
+            <button id="char-undo" class="btn small" type="button" disabled>Undo</button>
+            <button id="char-random" class="btn small" type="button">Random</button>
+            <button id="char-reset" class="btn small" type="button">Reset</button>
+            <button id="char-png" class="btn small" type="button">Save PNG</button>
+            <button id="char-done" class="btn primary" type="button">Done</button>
+        </div>
+    </div>
+</dialog>
 
 <script src="/js/api.js"></script>
 <script src="/js/hud.js"></script>
 <script src="/js/reactor.js"></script>
 <script src="/js/pass.js"></script>
 <script src="/js/lab.js"></script>
+<script src="/js/avatar.js"></script>
+<script src="/js/character.js"></script>
 <script src="/js/app.js"></script>
 </body>
 </html>
