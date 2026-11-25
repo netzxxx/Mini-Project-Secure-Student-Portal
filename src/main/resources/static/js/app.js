@@ -40,7 +40,7 @@
         });
         document.querySelectorAll('.panel').forEach((p) => p.classList.toggle('hidden', p.id !== 'tab-' + name));
         // working screens get the full height
-        $('pass').classList.toggle('hidden', ['admin', 'access', 'seal', 'about'].includes(name));
+        $('pass').classList.toggle('hidden', ['admin', 'access', 'reactor', 'about'].includes(name));
         const open = $('tab-' + name);
         Motion.rise([...open.children].filter((n) => n.id !== 'contact-card'));
         loaders[name]().catch(handleError);
@@ -413,7 +413,7 @@
 
     const loaders = {
         grades: loadGrades, courses: loadCourses, admin: loadAdmin, profile: loadProfile,
-        access: loadChecks, seal: async () => Lab.open(me.username), about: async () => {},
+        access: loadChecks, reactor: async () => Lab.open(me.username), about: async () => {},
     };
 
     $('logout').addEventListener('click', signOut);

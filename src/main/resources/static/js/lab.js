@@ -1,60 +1,57 @@
-// Seal lab: the user can build a seal by hand and save it as a picture.
+// Reactor lab: colours and settings of the core. Colours apply to every core in the portal.
 const Lab = (() => {
     const $ = (id) => document.getElementById(id);
-    const NAMES = ['outer', 'middle', 'inner'];
-    let seal = null;
-    let rings = null;
-    let owner = '';
+    let core = null;
 
-    // put the numbers of the seal on the sliders
-    function show(text) {
-        rings = Seal.shape(text);
-        NAMES.forEach((n, i) => { $('lab-' + n).value = rings[i].petals; });
-        $('lab-depth').value = 100;
-        seal.setText(text);
+    function showColors() {
+        for (const name of ['core', 'control', 'shell']) $('lab-color-' + name).value = Reactor.colors[name];
     }
 
-    function fromSliders() {
-        const depth = Number($('lab-depth').value) / 100;
-        seal.setRings(rings.map((r, i) => ({
-            ...r, petals: Number($('lab-' + NAMES[i]).value), wave: r.wave * depth, detail: r.detail * depth,
-        })));
+    function useText(text) {
+        core.setText(text);
+        core.set('coils', 0); // back to the own number of coils
+        $('lab-coils').value = core.ownCoils();
+    }
+
+    function setText(text) {
+        $('lab-text').value = text;
+        useText(text);
     }
 
     function save() {
-        // white lines need the blue field behind them
+        // the picture is transparent: put the background of the stage behind it
         const copy = document.createElement('canvas');
-        copy.width = seal.canvas.width;
-        copy.height = seal.canvas.height;
+        copy.width = core.canvas.width;
+        copy.height = core.canvas.height;
         const ctx = copy.getContext('2d');
-        ctx.fillStyle = getComputedStyle($('lab-stage')).backgroundColor;
+        ctx.fillStyle = '#04102c';
         ctx.fillRect(0, 0, copy.width, copy.height);
-        ctx.drawImage(seal.canvas, 0, 0);
+        ctx.drawImage(core.canvas, 0, 0);
         copy.toBlob((blob) => {
             const url = URL.createObjectURL(blob);
-            el('a', { href: url, download: 'seal.png' }).click();
+            el('a', { href: url, download: 'reactor.png' }).click();
             setTimeout(() => URL.revokeObjectURL(url), 1000);
         });
     }
 
     function open(username) {
-        owner = username;
-        if (seal) return;
-        seal = Seal.mount($('lab-canvas'), owner, { width: 1, instrument: true });
-        $('lab-text').value = owner;
-        show(owner);
-        $('lab-text').addEventListener('input', () => show($('lab-text').value.trim().toLowerCase()));
-        [...NAMES, 'depth'].forEach((n) => $('lab-' + n).addEventListener('input', fromSliders));
-        $('lab-speed').addEventListener('input', () => seal.setSpeed(Number($('lab-speed').value)));
-        $('lab-space').addEventListener('input', () => seal.setDepth(Number($('lab-space').value) / 100));
-        $('lab-random').addEventListener('click', () => {
-            const word = Math.random().toString(36).slice(2, 10);
-            $('lab-text').value = word;
-            show(word);
-            seal.ripple();
-        });
-        $('lab-mine').addEventListener('click', () => { $('lab-text').value = owner; show(owner); });
-        $('lab-wave').addEventListener('click', () => seal.ripple());
+        if (core) return;
+        core = Reactor.mount($('lab-canvas'), username);
+        setText(username);
+        showColors();
+        Reactor.swatches($('lab-swatches'), showColors);
+        for (const name of ['core', 'control', 'shell']) {
+            $('lab-color-' + name).addEventListener('input', (e) => Reactor.setColors({ [name]: e.target.value }));
+        }
+        $('lab-text').addEventListener('input', () => useText($('lab-text').value.trim().toLowerCase()));
+        $('lab-power').addEventListener('input', (e) => core.set('power', Number(e.target.value) / 100));
+        $('lab-coils').addEventListener('input', (e) => core.set('coils', Number(e.target.value)));
+        $('lab-tilt').addEventListener('input', (e) => core.set('tilt', Number(e.target.value) / 100));
+        $('lab-speed').addEventListener('input', (e) => core.set('speed', Number(e.target.value) / 10));
+        $('lab-chain').addEventListener('click', () => core.chain());
+        $('lab-stop').addEventListener('click', () => core.refuse());
+        $('lab-random').addEventListener('click', () => setText(Math.random().toString(36).slice(2, 10)));
+        $('lab-mine').addEventListener('click', () => setText(username));
         $('lab-save').addEventListener('click', save);
     }
 

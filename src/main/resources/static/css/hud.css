@@ -61,9 +61,8 @@ input, select { border-radius: 0; background: var(--field-input, var(--paper)); 
 
 /* ---------- login ---------- */
 :root[data-theme="dark"] .login-hero { background: radial-gradient(circle at 66% 45%, rgba(24, 110, 230, .5), rgba(2, 10, 28, 0) 62%); }
-:root[data-theme="dark"] .login-seal { color: #8ad4ff; }
 :root[data-theme="dark"] .login-main { border-right: 1px solid var(--line); background: rgba(2, 10, 28, .6); }
-.login-seal { width: min(96vh, 78%); right: -3%; transform: translateY(-56%); }
+.login-reactor { width: min(96vh, 78%); right: -3%; transform: translateY(-56%); }
 .hero-body { max-width: 22rem; }
 .hero-body h1 { font-size: clamp(2.1rem, 3.3vw, 3.4rem); }
 :root[data-theme="dark"] .hero-body::before { background: radial-gradient(closest-side, rgba(2, 10, 28, .85) 40%, transparent); }
@@ -72,6 +71,22 @@ input, select { border-radius: 0; background: var(--field-input, var(--paper)); 
 .status li + li { margin-top: .3rem; }
 .status strong { font-family: var(--mono); font-weight: 400; }
 .status .fault { color: #ffb3bc; }
+
+.swatches { display: flex; flex-wrap: wrap; gap: .6rem; }
+.swatch { width: 38px; height: 38px; padding: 0; border: 3px solid rgba(255, 255, 255, .75); border-radius: 50%; cursor: pointer; transition: transform .15s; }
+.swatch:hover { transform: scale(1.18); }
+.core-colors { position: absolute; right: 2.75rem; bottom: 8.5rem; z-index: 2; }
+.easter { margin-top: 1rem; font-size: .82rem; color: var(--soft); }
+.lab-controls .swatch { border-color: var(--line); }
+.color-row { display: grid; grid-template-columns: 1fr 64px; gap: .5rem 1rem; align-items: center; margin-top: 1rem; }
+.lab-controls .color-row label { margin: 0; }
+input[type="color"] { min-height: 38px; padding: 3px; cursor: pointer; }
+.lab-controls > label { margin-top: .6rem; }
+.lab-controls .toolbar { margin-top: 1rem; }
+/* the core needs a dark room in both themes */
+:root[data-theme="light"] .login-hero { background: radial-gradient(circle at 66% 45%, #1440d8, #07184f 75%); }
+:root[data-theme="light"] .hero-body::before { background: radial-gradient(closest-side, rgba(8, 28, 100, .8) 40%, transparent); }
+:root[data-theme="light"] .pass, :root[data-theme="light"] .lab-stage { background: radial-gradient(circle at 30% 45%, #1440d8, #07184f); }
 
 /* ---------- app ---------- */
 :root[data-theme="dark"] .topbar { background: #020a1c; }
@@ -83,7 +98,7 @@ input, select { border-radius: 0; background: var(--field-input, var(--paper)); 
         radial-gradient(circle at 12% 40%, rgba(40, 130, 255, .5), rgba(14, 60, 150, .28) 60%);
     box-shadow: inset 0 0 0 1px var(--line);
 }
-:root[data-theme="dark"] .pass-seal, :root[data-theme="dark"] .lab-stage { color: #a6dcff; }
+:root[data-theme="dark"] .pass-reactor, :root[data-theme="dark"] .lab-stage { color: #a6dcff; }
 :root[data-theme="dark"] .pass .mrz { background: rgba(120, 200, 255, .12); color: #bfe6ff; }
 :root[data-theme="dark"] .station { background: #0c356f; color: #eaf6ff; }
 :root[data-theme="dark"] .request { background: #d6f0ff; box-shadow: 0 0 18px 4px #6cc8ff; }
@@ -121,7 +136,8 @@ tbody tr:hover { background-color: var(--tint); }
 
 @media (max-width: 1250px) { .status { display: none; } }
 @media (max-width: 800px) {
-    .login-seal { width: 320px; right: -150px; }
+    .core-colors { display: none; } /* colours are in the Reactor lab */
+    .login-reactor { width: 320px; right: -150px; }
     .monitor { grid-template-columns: minmax(0, 1fr); gap: 1rem; }
     #radar { max-width: 320px; }
     .gauge { width: 100px; height: 100px; }

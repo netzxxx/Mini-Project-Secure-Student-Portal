@@ -1,4 +1,4 @@
-// The student document: an engraved seal (guilloche, like on diplomas and banknotes), the holder's
+// The student document: a reactor core with the holder's own rod pattern, the holder's
 // data and a machine-readable line. It only DISPLAYS access. The decision is made by the server.
 const Pass = (() => {
     const AREAS = [
@@ -23,13 +23,13 @@ const Pass = (() => {
 
     // info: { username, name, role, group, id, footer }
     function render(target, info) {
-        const sealBox = el('div', { class: 'pass-seal' });
+        const reactorBox = el('div', { class: 'pass-reactor' });
         const line1 = el('span', {});
         const line2 = el('span', {});
         const field = (label, value) => el('div', {}, el('dt', {}, label), el('dd', {}, value));
         target.className = 'pass';
         target.replaceChildren(
-            sealBox,
+            reactorBox,
             el('div', { class: 'pass-data' },
                 el('p', { class: 'pass-role' }, info.role[0] + info.role.slice(1).toLowerCase()),
                 el('p', { class: 'pass-name' }, info.name),
@@ -45,7 +45,7 @@ const Pass = (() => {
             })),
             el('p', { class: 'mrz', 'aria-hidden': 'true' },
                 line1, line2));
-        Seal.mount(sealBox, info.username, { width: .7, speed: 2 });
+        Reactor.mount(reactorBox, info.username, { scale: 1.15 });
         Motion.decode(line1, mrz([info.role, info.name]));
         Motion.decode(line2, mrz([info.username, info.group, String(info.id).padStart(6, '0')]));
     }
