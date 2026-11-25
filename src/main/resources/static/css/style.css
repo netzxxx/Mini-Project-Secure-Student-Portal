@@ -86,8 +86,8 @@ input:focus-visible, select:focus-visible { outline-offset: -1px; }
 .error { margin-top: 1rem; padding: .7rem .9rem; border-radius: 4px; background: var(--bad-bg); color: var(--bad); }
 
 /* ---------- engraving ---------- */
-.seal { display: block; width: 100%; aspect-ratio: 1; touch-action: pan-y; cursor: grab; }
-.seal:active { cursor: grabbing; }
+.reactor { display: block; width: 100%; aspect-ratio: 1; touch-action: pan-y; cursor: grab; }
+.reactor:active { cursor: grabbing; }
 .mrz { font-family: var(--mono); line-height: 1.45; white-space: pre; overflow: hidden; }
 .mrz span { display: block; }
 
@@ -106,7 +106,7 @@ input:focus-visible, select:focus-visible { outline-offset: -1px; }
     grid-area: 1 / 2; position: relative; display: flex; flex-direction: column; justify-content: space-between;
     padding: 2rem 2.75rem 1.75rem; overflow: hidden; background: var(--field); color: #ffffff;
 }
-.login-seal { position: absolute; top: 50%; right: -14%; width: min(112vh, 90%); transform: translateY(-54%); color: rgba(255, 255, 255, .7); }
+.login-reactor { position: absolute; top: 50%; right: -14%; width: min(112vh, 90%); transform: translateY(-54%); color: rgba(255, 255, 255, .7); }
 .hero-body { position: relative; max-width: 27rem; margin-top: auto; padding-bottom: 2.25rem; }
 .hero-body h1 { font-size: clamp(2.3rem, 4.1vw, 4.2rem); letter-spacing: -.01em; }
 .hero-body p { margin-top: 1rem; font-size: 1.1rem; }
@@ -144,7 +144,7 @@ input:focus-visible, select:focus-visible { outline-offset: -1px; }
     background: var(--field); color: #ffffff;
 }
 .pass:empty { min-height: 300px; }
-.pass-seal { position: relative; color: rgba(255, 255, 255, .85); }
+.pass-reactor { position: relative; color: rgba(255, 255, 255, .85); }
 .pass-role { font-size: 1.05rem; color: #ccd9ff; }
 .pass-name { font: 600 clamp(1.9rem, 4vw, 3.2rem)/1.08 var(--display); overflow-wrap: anywhere; }
 .pass-fields { display: flex; flex-wrap: wrap; gap: .6rem 1.75rem; margin: 1rem 0 0; }
@@ -219,7 +219,7 @@ input.num { width: 5rem; }
 .request.ok { box-shadow: 0 0 0 6px rgba(255, 255, 255, .35); }
 .request.no { background: #ff6374; box-shadow: 0 0 0 6px rgba(255, 99, 116, .4); }
 
-/* seal lab */
+/* reactor lab */
 .lab { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 2.25rem; align-items: start; }
 .lab-stage { padding: 1.5rem; border-radius: 8px; background: var(--field); color: #ffffff; }
 .lab-stage > div { max-width: 600px; margin: 0 auto; }
@@ -265,7 +265,7 @@ input[type="range"] { min-height: 32px; padding: 0; border: 0; background: none;
     .login-page { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto; }
     .login-hero { grid-area: 1 / 1; min-height: 250px; padding: 1.25rem 1.25rem 1rem; }
     .login-main { grid-area: 2 / 1; padding: 1.25rem 1.25rem 2.5rem; }
-    .login-seal { width: 340px; right: -190px; }
+    .login-reactor { width: 340px; right: -190px; }
     .hero-body { padding: 2rem 0 1rem; max-width: 14rem; }
     .hero-body h1 { font-size: 2rem; }
     .hero-body p, .hero-body::before { display: none; }

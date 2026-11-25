@@ -66,6 +66,11 @@ const Motion = (() => {
         ], { duration: 380, delay: delay || 0, easing: 'cubic-bezier(.4, 0, .6, 1)', fill: 'backwards' });
     }
 
+    function alarm(node) {
+        if (calm) return;
+        node.animate({ transform: ['scale(1)', 'scale(1.06)', 'scale(1)'], filter: ['none', 'brightness(1.8)', 'none'] }, { duration: 500, iterations: 2 });
+    }
+
     function rise(nodes) {
         if (calm) return;
         nodes.forEach((n, i) => n.animate([{ opacity: 0, transform: 'translateY(24px)' }, { opacity: 1, transform: 'none' }],
@@ -91,5 +96,5 @@ const Motion = (() => {
         }).catch(() => {});
     }
 
-    return { calm, wait, decode, count, tilt, stamp, rise, grow, reveal };
+    return { calm, wait, decode, count, tilt, stamp, alarm, rise, grow, reveal };
 })();

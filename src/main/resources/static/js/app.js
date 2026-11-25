@@ -40,7 +40,7 @@
         });
         document.querySelectorAll('.panel').forEach((p) => p.classList.toggle('hidden', p.id !== 'tab-' + name));
         // working screens get the full height
-        $('pass').classList.toggle('hidden', ['admin', 'access', 'seal', 'about'].includes(name));
+        $('pass').classList.toggle('hidden', ['admin', 'access', 'reactor', 'about'].includes(name));
         const open = $('tab-' + name);
         Motion.rise([...open.children].filter((n) => n.id !== 'contact-card'));
         loaders[name]().catch(handleError);
@@ -106,6 +106,21 @@
             el('strong', {}, value));
     }
 
+    // Two arcs: outer = midterm, inner = final. Lengths are SVG attributes, so CSP is fine.
+    function gauge(g) {
+        const arc = (r, value, name) => Pass.svg('circle', {
+            cx: 60, cy: 60, r, pathLength: 100, 'stroke-dasharray': value + ' 100', class: 'arc ' + name,
+            transform: 'rotate(-90 60 60)',
+        });
+        const letter = Pass.svg('text', { x: 60, y: 59, class: 'gauge-letter' }, g.letter);
+        const total = Pass.svg('text', { x: 60, y: 80, class: 'gauge-total' }, g.total + ' / 100');
+        return Pass.svg('svg', {
+            viewBox: '0 0 120 120', class: g.total < 50 ? 'gauge bad' : 'gauge', role: 'img',
+            'aria-label': 'Grade ' + g.letter + ', ' + g.total + ' of 100',
+        }, Pass.svg('circle', { cx: 60, cy: 60, r: 57, pathLength: 120, class: 'scale' }),
+        arc(49, g.midterm, 'outer'), arc(41, g.finalExam, 'inner'), letter, total);
+    }
+
     async function loadGrades() {
         const grades = await Api.get('/api/students/' + me.id + '/grades');
         if (!grades.length) {
@@ -118,14 +133,16 @@
                 el('p', { class: 'muted' }, g.teacherName),
                 g.teacherComment ? el('p', { class: 'comment' }, g.teacherComment) : null),
             el('div', { class: 'course-bars' }, bar('Midterm', g.midterm), bar('Final', g.finalExam)),
-            el('p', { class: 'stamp round' + (g.total < 50 ? ' bad' : '') }, g.letter, el('small', {}, g.total + ' / 100')))));
+            gauge(g))));
 
         Motion.rise([...$('grades-body').children]);
         $('grades-body').querySelectorAll('.bar-fill').forEach((b, i) => Motion.grow(b, 200 + i * 60));
-        $('grades-body').querySelectorAll('.stamp').forEach((s, i) => {
-            Motion.stamp(s, 500 + i * 180);
-            s.addEventListener('click', () => Motion.stamp(s)); // press it again
-        });
+        if (!Motion.calm) {
+            $('grades-body').querySelectorAll('.arc').forEach((a, i) => {
+                const length = parseFloat(a.getAttribute('stroke-dasharray'));
+                a.animate({ strokeDashoffset: [length, 0] }, { duration: 1300, delay: 150 + i * 90, easing: 'cubic-bezier(.2, .8, .2, 1)', fill: 'backwards' });
+            });
+        }
 
         const avg = Math.round(grades.reduce((s, g) => s + g.total, 0) / grades.length);
         const best = grades.reduce((a, b) => (b.total > a.total ? b : a));
@@ -205,10 +222,42 @@
     let allAudit = [];
     let auditFilter = 'ALL';
 
+    const radar = Hud.radar($('radar'));
+    let seenDenied = null; // time of the newest refused request already shown
+
+    function renderMonitor() {
+        radar.update(allAudit);
+        const refused = allAudit.filter((a) => a.outcome !== 'SUCCESS');
+        const last = refused.reduce((m, a) => (!m || a.timestamp > m.timestamp ? a : m), null);
+        $('audit-totals').replaceChildren(
+            el('div', {}, el('dt', {}, 'Allowed'), el('dd', {}, allAudit.length - refused.length)),
+            el('div', { class: refused.length ? 'fault' : '' }, el('dt', {}, 'Refused'), el('dd', {}, refused.length)),
+            el('div', {}, el('dt', {}, 'Last refused'), el('dd', { class: 'last' }, last ? last.username + ', ' + last.action : 'None')));
+        const newest = last ? last.timestamp : '';
+        if (seenDenied !== null && newest > seenDenied) {
+            flash('Refused: ' + last.username + ', ' + last.action, 'bad');
+            Motion.alarm($('radar'));
+        }
+        seenDenied = newest;
+    }
+
+    // While the Admin tab is open the log refreshes itself, so an attack shows up live.
+    setInterval(async () => {
+        if (!me || me.role !== 'ADMIN' || document.hidden || $('tab-admin').classList.contains('hidden')) return;
+        try {
+            const fresh = await Api.get('/api/admin/audit');
+            if (JSON.stringify(fresh) === JSON.stringify(allAudit)) return;
+            allAudit = fresh;
+            renderAudit();
+            renderMonitor();
+        } catch (err) { handleError(err); }
+    }, 4000);
+
     async function loadAdmin() {
         [allUsers, allAudit] = await Promise.all([Api.get('/api/admin/users'), Api.get('/api/admin/audit')]);
         renderUsers();
         renderAudit();
+        renderMonitor();
     }
 
     function renderUsers() {
@@ -364,7 +413,7 @@
 
     const loaders = {
         grades: loadGrades, courses: loadCourses, admin: loadAdmin, profile: loadProfile,
-        access: loadChecks, seal: async () => Lab.open(me.username), about: async () => {},
+        access: loadChecks, reactor: async () => Lab.open(me.username), about: async () => {},
     };
 
     $('logout').addEventListener('click', signOut);
